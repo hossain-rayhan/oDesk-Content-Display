@@ -10,5 +10,5 @@
     android:text="Space for Ad"
     android:gravity="center"
     android:textColor="@android:color/white"
-    android:textSize="25sp"/>
+    android:textSize="20sp"/>
 </LinearLayout>

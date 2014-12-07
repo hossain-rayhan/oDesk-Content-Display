@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="drawer_menu">
+        <item>Home</item>
+        <item>LinkedIn</item>
+        <item>Local Html 2</item>
+        <item>Local Html 3</item>
+        <item>Local Html 4</item>
+    </array>
+
+    <array name="drawer_menu_url">
+        <item>https://www.travelsmartrewards.sg/</item>
+        <item>https://www.linkedin.com/</item>
+        <item>file:///android_asset/index.html</item>
+        <item>file:///android_asset/index.html</item>
+        <item>file:///android_asset/index.html</item>
+    </array>
+</resources>

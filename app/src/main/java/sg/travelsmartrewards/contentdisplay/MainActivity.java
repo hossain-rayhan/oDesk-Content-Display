@@ -1,16 +1,25 @@
 package sg.travelsmartrewards.contentdisplay;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.ProgressDialog;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.TextView;
 
 
 public class MainActivity extends Activity
@@ -20,6 +29,7 @@ public class MainActivity extends Activity
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
+    private static WebView webView;
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -30,6 +40,7 @@ public class MainActivity extends Activity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -46,8 +57,27 @@ public class MainActivity extends Activity
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction()
-                .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
+                .replace(R.id.container, PlaceholderFragment.newInstance(position))
                 .commit();
+    }
+
+    private void showProgress(final boolean show) {
+        if (show)
+            Log.e("Show Progress:", "True");
+        else
+            Log.e("Show Progress:", "False");
+       /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+            dataLoadProgressView.setVisibility(View.VISIBLE);
+            dataLoadProgressView.animate().setDuration(shortAnimTime).alpha(show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    dataLoadProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            });
+        } else {
+            dataLoadProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+        }*/
     }
 
     public void onSectionAttached(int number) {
@@ -110,12 +140,15 @@ public class MainActivity extends Activity
          * fragment.
          */
         private static final String ARG_SECTION_NUMBER = "section_number";
+        private static int selectedDrawerMenuIndex;
+        private String[] mDrawerMenuUrlArray;
 
         /**
          * Returns a new instance of this fragment for the given section
          * number.
          */
         public static PlaceholderFragment newInstance(int sectionNumber) {
+            selectedDrawerMenuIndex = sectionNumber;
             PlaceholderFragment fragment = new PlaceholderFragment();
             Bundle args = new Bundle();
             args.putInt(ARG_SECTION_NUMBER, sectionNumber);
@@ -129,9 +162,52 @@ public class MainActivity extends Activity
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
+            mDrawerMenuUrlArray = getResources().getStringArray(R.array.drawer_menu_url);
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+            webView = (WebView) rootView.findViewById(R.id.webview);
+            webView.setWebViewClient(new WebViewClient() {
+
+                ProgressDialog progressDialog;
+
+                //If you will not use this method url links are opeen in new brower not in webview
+                public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                    view.loadUrl(url);
+                    return true;
+                }
+
+                //Show loader on url load
+                public void onLoadResource(WebView view, String url) {
+                    if (progressDialog == null) {
+                        // in standard case YourActivity.this
+                        progressDialog = new ProgressDialog(getActivity());
+                        progressDialog.setMessage("Loading...");
+                        progressDialog.show();
+                    }
+                }
+
+                public void onPageFinished(WebView view, String url) {
+                    try {
+                        if (progressDialog.isShowing()) {
+                            progressDialog.dismiss();
+                            progressDialog = null;
+                        }
+                    } catch (Exception exception) {
+                        exception.printStackTrace();
+                    }
+                }
+            });
+            WebSettings webSettings = webView.getSettings();
+            webSettings.setJavaScriptEnabled(true);
+            String url = getResources().getString(R.string.default_url);
+            // webView.loadUrl("https://www.travelsmartrewards.sg/");
+            url = mDrawerMenuUrlArray[selectedDrawerMenuIndex];
+
+
+            webView.loadUrl(url);
+
             return rootView;
         }
+
 
         @Override
         public void onAttach(Activity activity) {
@@ -141,4 +217,14 @@ public class MainActivity extends Activity
         }
     }
 
+    @Override
+    // Detect when the back button is pressed
+    public void onBackPressed() {
+        if (webView.canGoBack()) {
+            webView.goBack();
+        } else {
+            // Let the system handle the back button
+            super.onBackPressed();
+        }
+    }
 }
