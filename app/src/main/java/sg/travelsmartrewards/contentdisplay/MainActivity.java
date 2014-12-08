@@ -16,9 +16,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 
@@ -162,9 +164,43 @@ public class MainActivity extends Activity
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
+
             mDrawerMenuUrlArray = getResources().getStringArray(R.array.drawer_menu_url);
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+
+            final ProgressBar Pbar;
+            final TextView txtview = (TextView)rootView.findViewById(R.id.tV1);
+            Pbar = (ProgressBar) rootView.findViewById(R.id.pB1);
+
             webView = (WebView) rootView.findViewById(R.id.webview);
+
+            webView.setWebChromeClient(new WebChromeClient() {
+                public void onProgressChanged(WebView view, int progress)
+                {
+                    if(progress < 100 && Pbar.getVisibility() == ProgressBar.GONE){
+                        Pbar.setVisibility(ProgressBar.VISIBLE);
+                        txtview.setVisibility(View.VISIBLE);
+                    }
+                    Pbar.setProgress(progress);
+                    if(progress == 100) {
+                        Pbar.setVisibility(ProgressBar.GONE);
+                        txtview.setVisibility(View.GONE);
+                    }
+                }
+            });
+
+            WebSettings webSettings = webView.getSettings();
+            webSettings.setJavaScriptEnabled(true);
+            String url = getResources().getString(R.string.default_url);
+            // webView.loadUrl("https://www.travelsmartrewards.sg/");
+            url = mDrawerMenuUrlArray[selectedDrawerMenuIndex];
+
+
+            webView.loadUrl(url);
+
+            return rootView;
+
+            /*webView = (WebView) rootView.findViewById(R.id.webview);
             webView.setWebViewClient(new WebViewClient() {
 
                 ProgressDialog progressDialog;
@@ -205,7 +241,7 @@ public class MainActivity extends Activity
 
             webView.loadUrl(url);
 
-            return rootView;
+            return rootView;*/
         }
 
 
