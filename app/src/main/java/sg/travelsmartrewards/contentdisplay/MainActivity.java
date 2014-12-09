@@ -168,7 +168,7 @@ public class MainActivity extends Activity
             mDrawerMenuUrlArray = getResources().getStringArray(R.array.drawer_menu_url);
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-            final ProgressBar Pbar;
+/*            final ProgressBar Pbar;
             final TextView txtview = (TextView)rootView.findViewById(R.id.tV1);
             Pbar = (ProgressBar) rootView.findViewById(R.id.pB1);
 
@@ -198,9 +198,9 @@ public class MainActivity extends Activity
 
             webView.loadUrl(url);
 
-            return rootView;
+            return rootView;*/
 
-            /*webView = (WebView) rootView.findViewById(R.id.webview);
+            webView = (WebView) rootView.findViewById(R.id.webview);
             webView.setWebViewClient(new WebViewClient() {
 
                 ProgressDialog progressDialog;
@@ -241,7 +241,7 @@ public class MainActivity extends Activity
 
             webView.loadUrl(url);
 
-            return rootView;*/
+            return rootView;
         }
 
 
