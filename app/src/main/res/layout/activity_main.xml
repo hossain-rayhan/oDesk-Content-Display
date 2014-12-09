@@ -4,7 +4,7 @@
     android:layout_height="match_parent">
 
     <include
-        android:id="@+id/ad_mob_web_view"
+        android:id="@+id/ll_ad_mob_web_view"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_alignParentBottom="true"
@@ -14,7 +14,7 @@
         android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/ad_mob_web_view"
+        android:layout_above="@id/ll_ad_mob_web_view"
         tools:context=".MainActivity">
 
         <FrameLayout

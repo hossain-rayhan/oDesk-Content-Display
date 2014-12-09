@@ -1,27 +1,24 @@
 package sg.travelsmartrewards.contentdisplay;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 
 
 public class MainActivity extends Activity
@@ -32,6 +29,7 @@ public class MainActivity extends Activity
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
     private static WebView webView;
+    private LinearLayout mLLAdMobWebView;
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -63,6 +61,13 @@ public class MainActivity extends Activity
                 .commit();
     }
 
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        Toast.makeText(getApplicationContext(), "Key board_ onKeyUp", Toast.LENGTH_SHORT).show();
+        findViewById(R.id.ll_ad_mob_web_view).setVisibility(View.GONE);
+        return true;
+    }
+    
     private void showProgress(final boolean show) {
         if (show)
             Log.e("Show Progress:", "True");
