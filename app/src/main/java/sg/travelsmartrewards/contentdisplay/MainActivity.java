@@ -4,11 +4,11 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,8 +17,6 @@ import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.LinearLayout;
-import android.widget.Toast;
 
 
 public class MainActivity extends Activity
@@ -29,7 +27,8 @@ public class MainActivity extends Activity
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
     private static WebView webView;
-    private LinearLayout mLLAdMobWebView;
+    private View loadProgressView;
+    private MenuItem menuItemLoadProgress;
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -61,13 +60,14 @@ public class MainActivity extends Activity
                 .commit();
     }
 
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        Toast.makeText(getApplicationContext(), "Key board_ onKeyUp", Toast.LENGTH_SHORT).show();
-        findViewById(R.id.ll_ad_mob_web_view).setVisibility(View.GONE);
-        return true;
+    private void showLoadProgress(boolean show) {
+        if (show) {
+            menuItemLoadProgress.setVisible(true);
+        } else {
+            menuItemLoadProgress.setVisible(false);
+        }
     }
-    
+
     private void showProgress(final boolean show) {
         if (show)
             Log.e("Show Progress:", "True");
@@ -111,16 +111,13 @@ public class MainActivity extends Activity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-       /* if (!mNavigationDrawerFragment.isDrawerOpen()) {
-            // Only show items in the action bar relevant to this screen
-            // if the drawer is not showing. Otherwise, let the drawer
-            // decide what to show in the action bar.
-            getMenuInflater().inflate(R.menu.menu_main, menu);
-            restoreActionBar();
-            return true;
-        }
-        return super.onCreateOptionsMenu(menu);*/
-        return false;
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        menuItemLoadProgress = menu.findItem(R.id.action_load_progress);
+        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        loadProgressView = inflater.inflate(R.layout.refresh_progress, null);
+        MenuItemCompat.setActionView(menuItemLoadProgress, loadProgressView);
+        menuItemLoadProgress.setVisible(false);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -208,7 +205,7 @@ public class MainActivity extends Activity
             webView = (WebView) rootView.findViewById(R.id.webview);
             webView.setWebViewClient(new WebViewClient() {
 
-                ProgressDialog progressDialog;
+                // ProgressDialog progressDialog;
 
                 //If you will not use this method url links are opeen in new brower not in webview
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -218,23 +215,25 @@ public class MainActivity extends Activity
 
                 //Show loader on url load
                 public void onLoadResource(WebView view, String url) {
-                    if (progressDialog == null) {
+                    /*if (progressDialog == null) {
                         // in standard case YourActivity.this
                         progressDialog = new ProgressDialog(getActivity());
                         progressDialog.setMessage("Loading...");
                         progressDialog.show();
-                    }
+                    }*/
+                    ((MainActivity) getActivity()).showLoadProgress(true);
                 }
 
                 public void onPageFinished(WebView view, String url) {
-                    try {
+                    /*try {
                         if (progressDialog.isShowing()) {
                             progressDialog.dismiss();
                             progressDialog = null;
                         }
                     } catch (Exception exception) {
                         exception.printStackTrace();
-                    }
+                    }*/
+                    ((MainActivity) getActivity()).showLoadProgress(false);
                 }
             });
             WebSettings webSettings = webView.getSettings();
