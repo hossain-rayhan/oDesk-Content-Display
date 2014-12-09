@@ -2,9 +2,12 @@ package sg.travelsmartrewards.contentdisplay;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -12,11 +15,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
 
 
 public class MainActivity extends Activity
@@ -29,6 +35,8 @@ public class MainActivity extends Activity
     private static WebView webView;
     private View loadProgressView;
     private MenuItem menuItemLoadProgress;
+    boolean isOpened = false;
+    private FrameLayout mainLayout;
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -39,6 +47,18 @@ public class MainActivity extends Activity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setListenerToRootView();
+        mainLayout = (FrameLayout) findViewById(R.id.container);
+
+        mainLayout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+
+                Log.e("Touch", "Webview touched");
+                setListenerToRootView();
+                return true;
+            }
+        });
 
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
@@ -49,6 +69,26 @@ public class MainActivity extends Activity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+    }
+
+
+
+    public void setListenerToRootView() {
+        final View activityRootView = getWindow().getDecorView().findViewById(android.R.id.content);
+        activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+
+
+                int heightDiff = activityRootView.getRootView().getHeight() - activityRootView.getHeight();
+
+                if (heightDiff > 400) {
+                    findViewById(R.id.ll_ad_mob_web_view).setVisibility(View.GONE);
+                } else {
+                    findViewById(R.id.ll_ad_mob_web_view).setVisibility(View.VISIBLE);
+                }
+            }
+        });
     }
 
     @Override
@@ -86,6 +126,8 @@ public class MainActivity extends Activity
             dataLoadProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
         }*/
     }
+
+
 
     public void onSectionAttached(int number) {
         /*switch (number) {
@@ -203,6 +245,14 @@ public class MainActivity extends Activity
             return rootView;*/
 
             webView = (WebView) rootView.findViewById(R.id.webview);
+            webView.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    //Log.e("Touch","Touched webview");
+                    ((MainActivity) getActivity()).setListenerToRootView();
+                    return false;
+                }
+            });
             webView.setWebViewClient(new WebViewClient() {
 
                 // ProgressDialog progressDialog;
@@ -257,6 +307,7 @@ public class MainActivity extends Activity
         }
     }
 
+
     @Override
     // Detect when the back button is pressed
     public void onBackPressed() {
@@ -264,7 +315,23 @@ public class MainActivity extends Activity
             webView.goBack();
         } else {
             // Let the system handle the back button
-            super.onBackPressed();
+            //super.onBackPressed();
+            new AlertDialog.Builder(this)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setTitle("Closing Activity")
+                    .setMessage("Are you sure you want to close this activity?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+
+                    })
+                    .setNegativeButton("No", null)
+                    .show();
         }
     }
+
+
 }
